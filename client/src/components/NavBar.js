@@ -7,7 +7,7 @@ function NavBar() {
     return (
       <ul>
         <li>
-          <NavLink to="/" activeClassName="active">
+          <NavLink exact to="/" activeClassName="active">
             Home
           </NavLink>
         </li>

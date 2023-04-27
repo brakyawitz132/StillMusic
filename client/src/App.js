@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Home from './components/Home'
+import Profile from './components/Profile'
+import Dashboard from './components/Dashboard'
 
 
 function App() {
