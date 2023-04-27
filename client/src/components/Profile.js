@@ -1,11 +1,11 @@
 import React from 'react'
 
-function Dashboard(){
+function Profile(){
     return (
         <div>
-            Dashboard
+            Profile
         </div>
     )
 }
 
-export default Dashboard;
+export default Profile;
