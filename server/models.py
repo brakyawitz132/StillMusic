@@ -1,4 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.orm import validates
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from config import db
 
@@ -8,9 +10,15 @@ class User(SerializerMixin):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key = True)
-    name  = db.Column(db.String)
-    email = db.Column(db.String)
-    password = db.Column(db.String)
+    name  = db.Column(db.String(80))
+    email = db.Column(db.String(100))
+    password = db.Column(db.String(30))
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if '@' not in email:
+            raise ValueError('Enter valid email address')
+        return email
     
 
 class Song(SerializerMixin):
@@ -18,8 +26,8 @@ class Song(SerializerMixin):
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String)
-    # image placeholder
-    # audio placeholder
+    image = db.Column(db.LargeBinary, nullable = False) # image placeholder
+    song = db.Column(db.LargeBinary, nullable = False) # audio placeholder
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
