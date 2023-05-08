@@ -21,6 +21,11 @@ function NavBar() {
             Profile
           </NavLink>
         </li>
+        <li>
+          <NavLink to="/converter" activeClassName="active">
+            Converter
+          </NavLink>
+        </li>
       </ul>
     );
   }
