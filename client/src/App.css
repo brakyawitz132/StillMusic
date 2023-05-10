@@ -17,14 +17,20 @@ ul {
     text-decoration: none;
   }
   
-  li a.active {
-    background-color: #af4ca8;
-    color: white;
+  .link:focus {
+    outline: none;
+    color: #af4ca8;
+    background-color: transparent;
   }
   
-  li a:hover:not(.active) {
-    background-color: #555;
-    color: white;
+  .link:hover {
+    color: #6b46c1;
+    background-color: #e2e8f0;
+  }
+  
+  .link.active {
+    color: #af4ca8;
+    background-color: #e2e8f0;
   }
   
   

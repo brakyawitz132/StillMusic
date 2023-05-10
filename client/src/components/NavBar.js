@@ -1,31 +1,31 @@
 import "../App.css"
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaCompactDisc } from "react-icons/fa";
 
 
 function NavBar() {
   return (
-    <ul>
+    <ul className="list-none m-0 p-0 w-56 text-white fixed h-full overflow-auto">
       <li>
-        <NavLink exact to="/" activeClassName="active">
+        <Link exact to="/" className="block px-4 py-2 hover:bg-gray-700 focus:outline-none focus:text-purple-500 active:text-purple-500 active:bg-gray-700">
           Home
-        </NavLink>
+        </Link>
       </li>
       <li>
-        <NavLink to="/dashboard" activeClassName="active">
+        <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-700 focus:outline-none focus:text-purple-500 active:text-purple-500 active:bg-gray-700">
           Dashboard
-        </NavLink>
+        </Link>
       </li>
       <li>
-        <NavLink to="/profile" activeClassName="active">
+        <Link to="/profile" className="block px-4 py-2 hover:bg-gray-700 focus:outline-none focus:text-purple-500 active:text-purple-500 active:bg-gray-700">
           Profile
-        </NavLink>
+        </Link>
       </li>
       <li>
-        <NavLink to="/converter" activeClassName="active">
+        <Link to="/converter" className="block px-4 py-2 hover:bg-gray-700 focus:outline-none focus:text-purple-500 active:text-purple-500 active:bg-gray-700">
           Converter
-        </NavLink>
+        </Link>
       </li>
     </ul>
   );
@@ -39,12 +39,11 @@ function NavBarToggle() {
   };
 
   return (
-    <div className="mr-8">
+    <div className=" pl-2 pt-2">
       <button onClick={toggleNavBar}
-      className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white mr-8"
-      style={{ ":active": { backgroundColor: "white", color: "black" } }}>
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white"
+        style={{ ":active": { backgroundColor: "white", color: "black" } }}>
         <FaCompactDisc size={30} color="#af4ca8"/>
-        {/* {showNavBar ? "Hide" : "Show"} Navigation */}
       </button>
       {showNavBar && <NavBar />}
     </div>

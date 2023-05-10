@@ -12,12 +12,15 @@ function Converter() {
   const [tempo, setTempo] = useState(120);
   const [newNoteSequence, setNewNoteSequence] = useState(null)
   const [imageURL, setImageURL] = useState(null);
+  const [imageBlob, setImageBlob] = useState(null);
+  const [midiBlob, setMidiBlob] = useState(null);
 
   const handleImageChange = async (event) => {
     if (event.target.files && event.target.files[0]) {
       const img = new Image();
       img.src = URL.createObjectURL(event.target.files[0]);
       console.log(img)
+      const fileReader = new FileReader()
       img.onload = function() {
         const canvas = document.createElement('canvas');
         
@@ -91,6 +94,12 @@ function Converter() {
         setPitchData(pitchData);
         console.log(pitchData)
       }
+      fileReader.onload = (e) => {
+        const binaryData = e.target.result
+        setImageBlob(binaryData)
+        console.log(imageBlob)
+      }
+      fileReader.readAsArrayBuffer(event.target.files[0])
     }
   };
 
@@ -155,8 +164,10 @@ function Converter() {
     generatedSequence.notes.forEach(n => n.velocity = 100)
     const midi = sequenceProtoToMidi(generatedSequence);
     console.log(midi)
-    const blob = new Blob([midi], { type: 'audio/midi' });
-    const url = URL.createObjectURL(blob);
+    const audioBlob = new Blob([midi], { type: 'audio/midi' });
+    setMidiBlob(audioBlob)
+    console.log(midiBlob)
+    const url = URL.createObjectURL(audioBlob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'generated_sequence.mid';
@@ -169,18 +180,17 @@ function Converter() {
   }
 
   return (
-    <div className='container'>
+    <div className='container flex flex-col items-center justify-center'>
       <input type="file" className='image-upload' onChange={handleImageChange} />
       {imageURL && <img src={imageURL} alt="Test Subject" />}
       {pitchData.length > 0 && (
         <>
-          <label htmlFor="tempo">Tempo:</label>
-          <input type="number" id="tempo" value={tempo} onChange={handleTempoChange} />
-          <button onClick={createNoteSequenceFromMidi}>Generate Note Sequence</button>
-          <button onClick={generateComposition}>Generate Composition</button>
-          {/* <audio controls>
-            <source src="composition.mp3" type="audio/mp3"></source>
-          </audio> */}
+          <div className="px-2 py-1 border rounded">
+            <label htmlFor="tempo">Tempo:</label>
+            <input type="number" id="tempo" value={tempo} onChange={handleTempoChange} className="border border-black shadow-lg rounded-lg px-4"/>
+          </div>
+          <button onClick={createNoteSequenceFromMidi} className="border border-black shadow-lg rounded-lg px-4">Generate Note Sequence</button>
+          <button onClick={generateComposition} className="border border-black shadow-lg rounded-lg px-4">Generate Composition</button>
         </>
       )}
     </div>

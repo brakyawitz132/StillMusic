@@ -21,12 +21,22 @@ class Users(Resource):
     
     def post(self):
         data = request.get_json()
+        try:
+            new_user = User(
+                name = data['name'],
+                email = data['email'],
+                password = data['password']
+            )
+            db.session.add(new_user)
+            db.session.commit()
 
-        new_user = User(
-            name = data['name'],
-            email = data['email'],
-            password = data['password']
-        )
+        except Exception as e:
+            return make_response({
+                "errors": [e.__str__()]
+            }, 422)
+        
+        return make_response(new_user.to_dict(), 201)
+        
 
 api.add_resource(Users, '/users')
 
@@ -66,7 +76,22 @@ class Songs(Resource):
         return make_response(song, 200)
     
     def post(self):
-        pass
+        data = request.get_json()
+        try:
+            new_user = User(
+                name = data['name'],
+                email = data['email'],
+                password = data['password']
+            )
+            db.session.add(new_user)
+            db.session.commit()
+
+        except Exception as e:
+            return make_response({
+                "errors": [e.__str__()]
+            }, 422)
+        
+        return make_response(new_user.to_dict(), 201)
 
 api.add_resource(Songs, '/songs')
 
@@ -100,7 +125,45 @@ class SongsById(Resource):
 api.add_resource(SongsById, '/songs/<int:id>')
 
 class Favorites(Resource):
-    pass
+    def get(self):
+        favorites = [fav.to_dict() for fav in Favorite.query.all()]
+        return make_response(favorites, 200)
+    
+    def post(self):
+        data = request.get_json()
+        try:
+            new_user = User(
+                name = data['name'],
+                email = data['email'],
+                password = data['password']
+            )
+            db.session.add(new_user)
+            db.session.commit()
+
+        except Exception as e:
+            return make_response({
+                "errors": [e.__str__()]
+            }, 422)
+        
+        return make_response(new_user.to_dict(), 201)
+
+api.add_resource(Favorites, '/favorites')
+
+class FavoritesById(Resource):
+    def get(self, id):
+        favorite = Favorite.query.filter_by(id=id).first()
+        return make_response(favorite, 200)
+    
+    def delete(self, id):
+        favorite = Favorite.query.filter_by(id = id).first()
+        if not favorite:
+            return make_response({
+                "error": "Favorite not found"
+            }, 404)
+        db.session.delete(favorite)
+        db.session.commit()
+
+api.add_resource(FavoritesById, '/favorites/<int:id>')
 
 # Authentication and Authorization
 
