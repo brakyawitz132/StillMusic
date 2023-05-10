@@ -14,6 +14,8 @@ class User(SerializerMixin):
     email = db.Column(db.String(100))
     password = db.Column(db.String(30))
 
+    songs  = db.relationship('Song', backref='user')
+
     @validates('email')
     def validate_email(self, key, email):
         if '@' not in email:

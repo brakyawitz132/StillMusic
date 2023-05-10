@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
 import * as mm from '@magenta/music';
-import * as Tone from 'tone'
+// import * as Tone from 'tone'
 // const fs = require('fs');
 const { NoteSequence, MusicRNN, sequences, sequenceProtoToMidi } = mm;
-const { Midi } = require('@magenta/music');
+// const { Midi } = require('@magenta/music');
 const { quantizeNoteSequence } = sequences;
 
 
 function Converter() {
   const [pitchData, setPitchData] = useState([]);
-  // const [audioUrl, setAudioUrl] = useState('');
   const [tempo, setTempo] = useState(120);
   const [newNoteSequence, setNewNoteSequence] = useState(null)
-
-  const pitchClasses = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-
-  function midiToPitch(midiPitch) {
-    const pitchClass = midiPitch % 12;
-    const octave = Math.floor(midiPitch / 12) - 1;
-    return pitchClasses[pitchClass] + octave.toString();
-  }
+  const [imageURL, setImageURL] = useState(null);
 
   const handleImageChange = async (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -29,8 +21,23 @@ function Converter() {
       img.onload = function() {
         const canvas = document.createElement('canvas');
         
-        canvas.width = img.width / 5;
-        canvas.height = img.height / 5;
+        if (img.width < 400 || img.height < 400) {
+          canvas.width = img.width / 5;
+          canvas.height = img.height / 5;
+        }
+        else if (400 < img.width < 750 || 7400 < img.height < 750) {
+          canvas.width = img.width / 10;
+          canvas.height = img.height / 10;
+        }
+        else if (750 < img.width < 1000 || 750 < img.height < 1000) {
+          canvas.width = img.width / 30;
+          canvas.height = img.height / 30;
+        }
+        else if (img.width > 1000 || img.height > 1000) {
+          canvas.width = img.width / 50;
+          canvas.height = img.height / 50;
+        }
+        
 
         const context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
@@ -66,12 +73,6 @@ function Converter() {
           const clampedMidiValue = Math.max(0, Math.min(127, midiValue));
           // console.log(clampedMidiValue);
 
-          // Check if pitch is within the valid range of 0-127
-          // if (clampedPitch < 0 || clampedPitch > 127) {
-          //   console.error(`Invalid pitch value: ${clampedPitch}`);
-          //   continue;
-          // }
-
           // Convert MIDI value to pitch value
           // const pitch = midiToPitch(clampedMidiValue)
 
@@ -83,6 +84,8 @@ function Converter() {
           // Add the pitch value to the pitch data array
           pitchData.push(clampedMidiValue);
         }
+        // Set the image URL state variable to display the uploaded image
+        setImageURL(img.src);
 
         // Set the pitch data state
         setPitchData(pitchData);
@@ -168,15 +171,16 @@ function Converter() {
   return (
     <div className='container'>
       <input type="file" className='image-upload' onChange={handleImageChange} />
+      {imageURL && <img src={imageURL} alt="Test Subject" />}
       {pitchData.length > 0 && (
         <>
           <label htmlFor="tempo">Tempo:</label>
           <input type="number" id="tempo" value={tempo} onChange={handleTempoChange} />
-          <button onClick={createNoteSequenceFromMidi}>Start Audio Playback</button>
-          <button onClick={generateComposition}>Generate Note Sequence</button>
-          <audio controls>
+          <button onClick={createNoteSequenceFromMidi}>Generate Note Sequence</button>
+          <button onClick={generateComposition}>Generate Composition</button>
+          {/* <audio controls>
             <source src="composition.mp3" type="audio/mp3"></source>
-          </audio>
+          </audio> */}
         </>
       )}
     </div>

@@ -18,7 +18,7 @@ ul {
   }
   
   li a.active {
-    background-color: #4caf50;
+    background-color: #af4ca8;
     color: white;
   }
   
@@ -27,9 +27,7 @@ ul {
     color: white;
   }
   
-  .navbar {
-    float: left;
-  }
+  
 
   #profile {
     /* position: relative; */
