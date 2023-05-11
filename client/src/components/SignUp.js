@@ -23,7 +23,7 @@ const Signup = () => {
         .then(data => {
             console.log(data);
             if (data.id) {
-                navigate('/home')
+                navigate('/')
 
                 // Registration is successful, you can update the state or redirect the user as needed
                 // For example, you can automatically log in the user or show a success message

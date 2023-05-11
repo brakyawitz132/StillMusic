@@ -6,7 +6,8 @@ function SongItem() {
             <h3>Name: </h3>
             <img ></img>
             <audio ></audio>
-            <button></button>
+            <button className='favorite'></button>
+            <button className='delete'></button>
         </div>
     )
 }

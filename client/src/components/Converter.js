@@ -14,6 +14,7 @@ function Converter() {
   const [imageURL, setImageURL] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
   const [midiBlob, setMidiBlob] = useState(null);
+  const [songName, setSongName] = useState('')
 
   const handleImageChange = async (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -40,8 +41,7 @@ function Converter() {
           canvas.width = img.width / 50;
           canvas.height = img.height / 50;
         }
-        
-
+      
         const context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
 
@@ -70,14 +70,9 @@ function Converter() {
           const midiValue = Math.round(
               12 * Math.log2(((r / 255) + (g / 255) + (b / 255)) / 3 * pitchRange) + 60
           );
-          // console.log(midiValue)
 
           // Clamp pitch values to the valid range of 0-127
           const clampedMidiValue = Math.max(0, Math.min(127, midiValue));
-          // console.log(clampedMidiValue);
-
-          // Convert MIDI value to pitch value
-          // const pitch = midiToPitch(clampedMidiValue)
 
           // Check extreme MIDI values
           if (clampedMidiValue === 127 || clampedMidiValue === 0) {
@@ -96,8 +91,9 @@ function Converter() {
       }
       fileReader.onload = (e) => {
         const binaryData = e.target.result
-        setImageBlob(binaryData)
-        console.log(imageBlob)
+        const imgBlob = new Blob([binaryData], { type: 'image/png'})
+        setImageBlob(imgBlob)
+        // console.log(imageBlob)
       }
       fileReader.readAsArrayBuffer(event.target.files[0])
     }
@@ -153,7 +149,6 @@ function Converter() {
     for (let i = 0; i < quantizedSequence.notes.length; i++) {
       quantizedSequence.notes[i].pitch = inputSequence.notes[i].pitch;
     }
-  
     console.log(quantizedSequence);
   
     // Generate a new sequence based on the input sequence
@@ -165,19 +160,36 @@ function Converter() {
     const midi = sequenceProtoToMidi(generatedSequence);
     console.log(midi)
     const audioBlob = new Blob([midi], { type: 'audio/midi' });
-    setMidiBlob(audioBlob)
-    console.log(midiBlob)
+    // setMidiBlob(audioBlob)
+    // console.log(midiBlob)
     const url = URL.createObjectURL(audioBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'generated_sequence.mid';
+    link.download = `${songName}.mid`;
     link.click();
-  }
 
+    const formData = new FormData();
+    formData.append('songName', songName);
+    formData.append('midi', audioBlob, songName + '.mid');
+    formData.append('image', imageBlob, songName + '.png');
+    console.log(formData, audioBlob, imageBlob)
+
+    fetch('http://localhost:5555/songs', {
+      method: 'POST',
+      body: formData
+      // headers: {
+      //   'Content-Type': 'multipart/form-data'
+      //   }
+      })
+      .then(r => r.json())
+      .then(data => console.log(data))
+  }
   
   function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
+
+  
 
   return (
     <div className='container flex flex-col items-center justify-center'>
@@ -186,7 +198,9 @@ function Converter() {
       {pitchData.length > 0 && (
         <>
           <div className="px-2 py-1 border rounded">
-            <label htmlFor="tempo">Tempo:</label>
+            <label htmlFor="songName">Name: </label>
+            <input type='text' value={songName} onChange={(e) => setSongName(e.target.value)} className="border border-black shadow-lg rounded-lg px-4"></input>
+            <label htmlFor="tempo">Tempo: </label>
             <input type="number" id="tempo" value={tempo} onChange={handleTempoChange} className="border border-black shadow-lg rounded-lg px-4"/>
           </div>
           <button onClick={createNoteSequenceFromMidi} className="border border-black shadow-lg rounded-lg px-4">Generate Note Sequence</button>

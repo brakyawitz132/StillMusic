@@ -3,14 +3,43 @@
 # Standard library imports
 
 # Remote library imports
-from flask import request, session, make_response
+from flask import request, make_response, jsonify, session
 from flask_restful import Resource
+# from flask_jwt_extended import create_access_token
+# from flask_jwt_extended import get_jwt_identity
+# from flask_jwt_extended import current_user
+# from flask_jwt_extended import jwt_required
+# from flask_jwt_extended import JWTManager
 
 # Local imports
-from config import app, db, api
+from config import *
 from models import User, Song, Favorite
+app.secret_key = 'ianiscool'
 
-# Views go here!
+# app.config["JWT_SECRET_KEY"] = "lkjq43berg9y82945qouhgrnq"  # Change this!
+# jwt = JWTManager(app)
+
+# CORS(app,origins="http://localhost:4000", supports_credentials=True)
+# app.config['CORS_HEADERS'] = 'Content-Type'
+
+# @app.route("/token", methods=["POST"])
+# def create_token():
+#     email = request.json.get("email")
+#     password = request.json.get("password")
+#     user=User.query.filter_by(email=email).first()
+#     print(user)
+#     if not user or not user.password == password:
+#         return jsonify({"msg": "Bad email or password"}), 401
+
+#     # additional_claims = {"id": user.id}
+#     access_token = create_access_token(identity=email)
+#     return jsonify(access_token=access_token, user_id=user.id)
+
+# @app.route("/protected", methods=["GET"])
+# @jwt_required()
+# def protected():
+#     current_user = get_jwt_identity()
+#     return jsonify(logged_in_as=current_user), 200
 
 # Models
 
@@ -76,14 +105,21 @@ class Songs(Resource):
         return make_response(song, 200)
     
     def post(self):
-        data = request.get_json()
+        song_name = request.form.get('songName')
+        image_blob = request.files['image']
+        midi_blob = request.files['midi']
         try:
-            new_user = User(
-                name = data['name'],
-                email = data['email'],
-                password = data['password']
+            # Read the binary data from the image and MIDI files
+            image_data = image_blob.read()
+            midi_data = midi_blob.read()
+
+            new_song = Song(
+                name=song_name,
+                image=image_data,
+                song=midi_data,
+                user_id= 1#current_user.id  # if using Flask-Login for authentication
             )
-            db.session.add(new_user)
+            db.session.add(new_song)
             db.session.commit()
 
         except Exception as e:
@@ -91,7 +127,7 @@ class Songs(Resource):
                 "errors": [e.__str__()]
             }, 422)
         
-        return make_response(new_user.to_dict(), 201)
+        return make_response(new_song.to_dict(), 201)
 
 api.add_resource(Songs, '/songs')
 
@@ -170,12 +206,13 @@ api.add_resource(FavoritesById, '/favorites/<int:id>')
 class Login(Resource):
 
     def post(self):
-        
-        username = request.get_json()['username']
-        user = User.query.filter(User.username == username).first()
-
-        session['user_id'] = user.id
-
+        data = request.get_json()
+        user = User.query.filter(User.email == data["email"]).first()
+        if not user:
+            return make_response(jsonify({'error': "bitch doesnt exist"}), 404)
+        if user.authenticate(data['password']):
+            session['user_id'] = user.id
+            print(session)
         return user.to_dict(), 200
 
 class Logout(Resource):
@@ -189,7 +226,6 @@ class Logout(Resource):
 class CheckSession(Resource):
 
     def get(self):
-        
         user_id = session.get('user_id')
         if user_id:
             user = User.query.filter(User.id == user_id).first()
